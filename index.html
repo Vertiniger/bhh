@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vernitiger CnC</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0f0f0f;
+      font-family: 'Arial', sans-serif;
+      color: #fff;
+    }
+
+    nav {
+      background-color: #1a1a1a;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    nav .title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #00e5ff;
+    }
+
+    nav a {
+      color: #ccc;
+      margin-left: 20px;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #00e5ff;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: #00e5ff;
+      margin-bottom: 40px;
+      margin-top: 40px;
+    }
+
+    .plan-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .plan-card {
+      background-color: #1c1c1c;
+      border-radius: 16px;
+      padding: 24px;
+      width: 320px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .plan-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #00e5ff;
+    }
+
+    .benefits ul {
+      list-style: none;
+      padding: 0;
+      font-size: 16px;
+    }
+
+    .benefits li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .benefits li::before {
+      content: '✔';
+      color: #4caf50;
+      margin-right: 12px;
+    }
+
+    .benefits li.excluded::before {
+      content: '✘';
+      color: #f44336;
+    }
+
+    .price {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 5px;
+    }
+
+    .duration {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .purchase-btn {
+      background-color: #00e5ff;
+      color: #000;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .purchase-btn:hover {
+      background-color: #4befff;
+    }
+
+    @media (max-width: 768px) {
+      .plan-card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="title">Vernitiger CnC</div>
+    <div>
+      <a href="#plans">Plans</a>
+      <a href="#hold">Hold Service</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- PLANS SECTION -->
+    <div id="plans" class="section-title">Plans</div>
+    <div class="plan-container">
+      <!-- Basic Plan -->
+      <div class="plan-card">
+        <div class="plan-title">Basic Plan</div>
+        <div class="benefits">
+          <ul>
+            <li>TimeLimit: 120 Seconds</li>
+            <li>Concurrents: 1x</li>
+            <li>ViP: False</li>
+            <li>Cooldown: 60s</li>
+            <li>Expired: 10 Days</li>
+          </ul>
+        </div>
+        <div class="price">IDR 100.000 / $10</div>
+        <div class="duration">Per 10 Days</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Buy Now</button>
+      </div>
+
+      <!-- Beginner Plan -->
+      <div class="plan-card">
+        <div class="plan-title">Beginner Plan</div>
+        <div class="benefits">
+          <ul>
+            <li>TimeLimit: 180 Seconds</li>
+            <li>Concurrents: 2x</li>
+            <li>ViP: True</li>
+            <li>Cooldown: 40s</li>
+            <li>Expired: 30 Days</li>
+          </ul>
+        </div>
+        <div class="price">IDR 300.000 / $25</div>
+        <div class="duration">Per 30 Days</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Buy Now</button>
+      </div>
+
+      <!-- VIP Plan -->
+      <div class="plan-card">
+        <div class="plan-title">VIP Plan</div>
+        <div class="benefits">
+          <ul>
+            <li>TimeLimit: 300 Seconds</li>
+            <li>Concurrents: 3x</li>
+            <li>ViP: True</li>
+            <li>Cooldown: 30s</li>
+            <li>Expired: 30 Days</li>
+          </ul>
+        </div>
+        <div class="price">IDR 500.000 / $40</div>
+        <div class="duration">Per 30 Days</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Buy Now</button>
+      </div>
+    </div>
+
+    <!-- HOLD SERVICE SECTION -->
+    <div id="hold" class="section-title">Hold Service</div>
+    <div class="plan-container">
+      <!-- Hold Basic -->
+      <div class="plan-card">
+        <div class="plan-title">Hold Basic</div>
+        <div class="benefits">
+          <ul>
+            <li>1 Hour Non-stop Attack</li>
+            <li>Cant Reach The Page</li>
+            <li class="excluded">Removed From Keyword</li>
+            <li class="excluded">Down 24/7</li>
+          </ul>
+        </div>
+        <div class="price">$11.00</div>
+        <div class="duration">Per Hour</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Contact Me</button>
+      </div>
+
+      <!-- Hold Pro -->
+      <div class="plan-card">
+        <div class="plan-title">Hold Pro</div>
+        <div class="benefits">
+          <ul>
+            <li>1 Day Non-stop Attack</li>
+            <li>Cant Reach The Page</li>
+            <li>Removed From Keyword</li>
+            <li>Down 24/7</li>
+          </ul>
+        </div>
+        <div class="price">$150.00</div>
+        <div class="duration">Per Day</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Contact Me</button>
+      </div>
+
+      <!-- Hold Ultimate -->
+      <div class="plan-card">
+        <div class="plan-title">Hold Ultimate</div>
+        <div class="benefits">
+          <ul>
+            <li>Suspend Website Page</li>
+            <li>Cant Reach The Page</li>
+            <li>Removed From Keyword</li>
+            <li>Cant Access Permanently</li>
+          </ul>
+        </div>
+        <div class="price">$???.??</div>
+        <div class="duration">Until Suspend</div>
+        <button onclick="location.href='https://t.me/wayneteller'" class="purchase-btn">Contact Me</button>
+      </div>
+    </div>
+
+    <!-- PAYMENT INFO -->
+    <div class="section-title">Payment Support</div>
+    <div style="text-align: center; font-size: 18px; color: #ccc; margin-bottom: 50px;">
+      BTC | USDT | Crypto | QRIS | Dana
+    </div>
+  </div>
+</body>
+</html>
