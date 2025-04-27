@@ -114,7 +114,7 @@ function flood() {
 }
 
 if (cluster.isMaster) {
-    console.log(`Flood to ${targetIP}:${targetPort} with ${threads} threads...`);
+    console.log(`Flood to ${targetIP}:${targetPort}`);
     for (let i = 0; i < threads; i++) cluster.fork();
 } else {
     flood();
