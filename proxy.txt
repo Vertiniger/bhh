@@ -3,6 +3,16 @@
 138.68.60.8:3128
 103.247.22.151:7777
 152.32.67.243:10101
+198.23.239.134:6540:hltrjkuc:qpl9efhzuvfl
+207.244.217.165:6712:hltrjkuc:qpl9efhzuvfl
+107.172.163.27:6543:hltrjkuc:qpl9efhzuvfl
+161.123.152.115:6360:hltrjkuc:qpl9efhzuvfl
+23.94.138.75:6349:hltrjkuc:qpl9efhzuvfl
+216.10.27.159:6837:hltrjkuc:qpl9efhzuvfl
+136.0.207.84:6661:hltrjkuc:qpl9efhzuvfl
+64.64.118.149:6732:hltrjkuc:qpl9efhzuvfl
+142.147.128.93:6593:hltrjkuc:qpl9efhzuvfl
+154.36.110.199:6853:hltrjkuc:qpl9efhzuvfl
 47.236.224.32:8080
 168.138.50.91:80
 72.10.160.172:31745
