@@ -15,7 +15,7 @@ SUBNETS=(
 
 PORTS="0–65535"
 
-RATE="10000000"
+RATE="100000000"
 RAW_SCAN="raw_scan_result.txt"
 TEMP="temp_scan.txt"
 OUTPUT="live_proxies.txt"
