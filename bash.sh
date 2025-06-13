@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INPUT_FILE="active_proxies.txt"
+INPUT_FILE="live_proxies.txt"
 OUTPUT_FILE="active.txt"
 
 > "$OUTPUT_FILE"
@@ -11,7 +11,7 @@ while IFS= read -r proxy; do
     status_code=$(curl -s -o /dev/null -w "%{http_code}" \
         --proxy "http://$proxy" \
         -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36" \
-        --max-time 0.002 \
+        --max-time 2 \
         http://httpbin.org/ip)
 
     if [[ "$status_code" != "403" && "$status_code" != "000" ]]; then
