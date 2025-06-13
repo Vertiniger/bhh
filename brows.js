@@ -229,11 +229,15 @@ function detectProxyFormat(proxyString) {
                     break;
             }
 
-            return `${username || "myUsername"}:${password || "myPassword"}@${host}:${port}`;
+            if (username && password) {
+                return `${username}:${password}@${host}:${port}`;
+            } else {
+                return `${host}:${port}`;
+            }
         }
     }
 
-    return null; // Không phát hiện được định dạng
+    return null; // Tidak cocok format
 }
 
 async function openBrowser(targetURL, browserProxy) {
@@ -245,7 +249,7 @@ async function openBrowser(targetURL, browserProxy) {
 		let username = "";
 		let password = "";
 
-		const proxyMatch = browserProxy.match(/^(?:(.*?):(.*?)@)?([\w.-]+):(\d+)$/);
+	const proxyMatch = browserProxy.match(/^(?:(.*?):(.*?)@)?([\w.-]+):(\d+)$/);
         if (proxyMatch) {
             username = proxyMatch[1] || ""; // Username if available
             password = proxyMatch[2] || ""; // Password if available
@@ -593,7 +597,7 @@ async function openBrowser(targetURL, browserProxy) {
 			const cookies = await page.cookies(targetURL);
 
 			// console.log("TITLE",title);
-			// await page.screenshot({ path: 'apify.jpeg', fullPage: true });
+			await page.screenshot({ path: `screenshot_${Date.now()}.png` });
 
 			resolve({
 				title: title,
@@ -862,7 +866,7 @@ async function startThread(targetURL, browserProxy, task, done, retries = 0) {
 					"--ua",
 					response.userAgent,
 					"--http",
-					1,
+					2,
 					"--exploit",
 					true,
 					"--sleep",
