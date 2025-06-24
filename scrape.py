@@ -8,7 +8,8 @@ REPO_NAME = 'bhh'
 FILE_PATH = 'active.txt'
 
 SOURCES = [
-    "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=5000&country=vn"
+    "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=5000&country=vn",
+    "https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&country=vn&proxy_format=ipport&format=text"
 ]
 
 USER_AGENT = (
