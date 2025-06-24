@@ -5,7 +5,7 @@ import re
 
 REPO_OWNER = 'Vertiniger'
 REPO_NAME = 'bhh'
-FILE_PATH = 'proxy.txt'
+FILE_PATH = 'http.txt'
 
 SOURCES = [
     "https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&country=id,vn&proxy_format=ipport&format=text&timeout=5000",
