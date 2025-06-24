@@ -1,3 +1,5 @@
+https://spys.me/proxy.txt
+
 #!/bin/bash
 
 SUBNETS=(
