@@ -1,8 +1,3 @@
-https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&country=id,vn&proxy_format=ipport&format=text&timeout=5000
-https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&country=us&proxy_format=ipport&format=text&timeout=5000
-https://spys.me/proxy.txt
-https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=5000&country=all
-
 #!/bin/bash
 
 SUBNETS=(
