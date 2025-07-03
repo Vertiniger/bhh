@@ -1,23 +1,5 @@
-#!/bin/bash
+masscan 36.72.0.0/13,113.161.0.0/16,171.224.0.0/11,203.113.128.0/18,27.72.0.0/13,103.239.144.0/22,202.5.132.0/22,103.87.0.0/22,202.56.13.0/24,41.78.0.0/17,103.120.72.0/21,103.48.116.0/22,154.66.0.0/16 \
+-p1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,4002,4003,4004,4005,4006,4007,4008,4009,4010,4545,5101,5102,5103,5104,5105,5106,5107,5108,5109,5110,7002,10001,10002,10003,10004,10005,10006,10007,10008,10009,10010 \
+--rate=1000000 -oG hasil_masscan.txt
 
-INPUT_FILE="live_proxies.txt"
-OUTPUT_FILE="active.txt"
-
-> "$OUTPUT_FILE"
-
-while IFS= read -r proxy; do
-    [[ -z "$proxy" ]] && continue
-
-    status_code=$(curl -s -o /dev/null -w "%{http_code}" \
-        --proxy "http://$proxy" \
-        -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36" \
-        --max-time 2 \
-        http://httpbin.org/ip)
-
-    if [[ "$status_code" != "403" && "$status_code" != "000" ]]; then
-        echo "[ACTIVE] $proxy"
-        echo "$proxy" >> "$OUTPUT_FILE"
-    fi
-done < "$INPUT_FILE"
-
-echo "[DONE] Proxy checking completed. Results in $OUTPUT_FILE"
+grep "Host:" hasil_masscan.txt | sed -E 's/.*Host: ([0-9.]+).*Ports: ([0-9]+)\/open.*/\1:\2/' > proxy_list.txt
