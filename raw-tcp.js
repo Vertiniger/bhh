@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INPUT="proxies.txt"
+INPUT="proxy_list.txt"
 OUTPUT="live_proxies.txt"
 THREADS=300  
 
