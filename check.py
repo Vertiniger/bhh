@@ -1,35 +1,49 @@
 import asyncio
 import aiohttp
+import re
 
 PROXY_FILE = "proxies.txt"
 OUTPUT_FILE = "live_proxies.txt"
 TEST_URL = "http://api.ip.sb/ip"
-CONCURRENCY = 10000
+CONCURRENCY = 5000  
+TIMEOUT = 5  
 
 sem = asyncio.Semaphore(CONCURRENCY)
 live_proxies = []
 
+IP_REGEX = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
+
 async def check_proxy(session, proxy):
     async with sem:
         try:
-            async with session.get(TEST_URL, proxy=f"http://{proxy}", timeout=10) as resp:
+            async with session.get(
+                TEST_URL,
+                proxy=f"http://{proxy}",
+                timeout=aiohttp.ClientTimeout(total=TIMEOUT)
+            ) as resp:
                 if resp.status in [200, 302]:
-                    text = await resp.text()
-                    if "origin" in text:
-                        print(f"[LIVE] {proxy}")
+                    text = (await resp.text()).strip()
+                    if IP_REGEX.match(text):  # Pastikan respons berupa IP
+                        print(f"[LIVE] {proxy} -> {text}")
                         live_proxies.append(proxy)
+                    else:
+                        print(f"[DEAD] {proxy} - Invalid response: {text}")
                 else:
-                    print(f"[DEAD] {proxy} - Status {resp.status}")
-        except Exception:
-            pass
+                    print(f"[DEAD] {proxy} - Status: {resp.status}")
+        except Exception as e:
+            print(f"[DEAD] {proxy} - Error: {type(e).__name__}")
 
 async def main():
     print("📥 Memuat proxies...")
 
-    with open(PROXY_FILE, "r") as f:
-        proxies = [line.strip() for line in f if line.strip()]
+    try:
+        with open(PROXY_FILE, "r") as f:
+            proxies = [line.strip() for line in f if line.strip()]
+    except FileNotFoundError:
+        print("❌ File proxies.txt tidak ditemukan.")
+        return
 
-    print(f"🚀 Memulai pengecekan {len(proxies)} proxies...")
+    print(f"🚀 Memulai pengecekan {len(proxies)} proxies...\n")
 
     async with aiohttp.ClientSession() as session:
         tasks = [check_proxy(session, proxy) for proxy in proxies]
@@ -38,9 +52,11 @@ async def main():
     with open(OUTPUT_FILE, "w") as f:
         f.write("\n".join(live_proxies))
 
-    print(f"✅ Selesai. Proxy valid: {len(live_proxies)} tersimpan di {OUTPUT_FILE}")
+    print(f"\n✅ Selesai. Proxy valid: {len(live_proxies)} tersimpan di {OUTPUT_FILE}")
 
-try:
-    asyncio.get_running_loop().create_task(main())
-except RuntimeError:
-    asyncio.run(main())
+if __name__ == "__main__":
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(main())
+    except RuntimeError:
+        asyncio.run(main())
