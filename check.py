@@ -11,7 +11,17 @@ TIMEOUT = 5
 sem = asyncio.Semaphore(CONCURRENCY)
 live_proxies = []
 
-IP_REGEX = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
+IP_REGEX = re.compile(
+    r"""^(
+        (
+            ([0-9]{1,3}\.){3}[0-9]{1,3}      # IPv4
+        )|
+        (
+            ([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}  # IPv6
+        )
+    )$""",
+    re.VERBOSE
+)
 
 async def check_proxy(session, proxy):
     async with sem:
@@ -23,7 +33,7 @@ async def check_proxy(session, proxy):
             ) as resp:
                 if resp.status in [200, 302]:
                     text = (await resp.text()).strip()
-                    if IP_REGEX.match(text):  # Pastikan respons berupa IP
+                    if IP_REGEX.match(text):
                         print(f"[LIVE] {proxy} -> {text}")
                         live_proxies.append(proxy)
                     else:
