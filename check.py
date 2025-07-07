@@ -3,7 +3,7 @@ import aiohttp
 
 PROXY_FILE = "proxies.txt"
 OUTPUT_FILE = "live_proxies.txt"
-TEST_URL = "http://httpbin.org/ip"
+TEST_URL = "http://api.ip.sb/ip"
 CONCURRENCY = 10000
 
 sem = asyncio.Semaphore(CONCURRENCY)
